@@ -11,11 +11,11 @@ You have to do some steps to use this Dapp:
 ```
 npm install
 ```
-afret installing:
+after installing:
 ```
 npm i ethereumjs-testrpc
 ```
-afret installing:
+after installing:
 ```
 testrpc
 ```
