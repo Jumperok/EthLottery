@@ -31,6 +31,12 @@ var Lottery = LotteryContract.at('our address');
 
 There are 5 tickets, 1 of them is winning. Ticket cost is 1 ether. One wallet can buy only one ticket. When all tickets are sold out, program choose a random number (1-5) and one of the participants get almost all money that others participants have spent.
 
+## How to use Dapp:
+
+If you want to change a wallet, buttons on top of the screen will help you.
+To buy a ticket click on it then click "Buy" button. If a color of ticket turns grey, that means you buyed a ticket.
+When last ticket will be bought, winner address should appear on the screen.
+
 
 
 
