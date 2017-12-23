@@ -1,0 +1,331 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Lottery</title>
+    <link href="css/hover-min.css" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="main.css">
+
+    <script src="./node_modules/web3/dist/web3.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
+
+</head>
+<body>
+  <div id="wrapper">
+    <div id="head">
+      <div class="wallets">
+        <button class="wallet" value="0">
+          0
+        </button>
+        <button class="wallet" value="1">
+          1
+        </button>
+        <button class="wallet" value="2">
+          2
+        </button>
+        <button class="wallet" value="3">
+          3
+        </button>
+        <button class="wallet" value="4">
+          4
+        </button>
+        <span> Change a wallet</span>
+      </div>
+
+      <h1>Ethereum Lottery</h1>
+      <h2>Jackpot: 4.95 ETH</h2>
+    </div>
+    <div id="description">
+      <h3>1 winning ticket; <span id="num">0</span> tickets sold; 5 tickets in total; 1 eth each + tx fee</h3>
+    </div>
+    <div id="tickets">
+      <div id="ticket1" class="ticket" tabindex="1">Ticket №1</div>
+      <div id="ticket2" class="ticket" tabindex="2">Ticket №2</div>
+      <div id="ticket3" class="ticket" tabindex="3">Ticket №3</div>
+      <div id="ticket4" class="ticket" tabindex="4">Ticket №4</div>
+      <div id="ticket5" class="ticket" tabindex="5">Ticket №5</div>
+    </div>
+    <div id="buy">
+      <button class="big-button" data-action="submit">
+        Buy
+      </button>
+    </div>
+    <div id="congrat">
+      Congratulation
+    </div>
+    <div id="winners">
+      <p>Winners</p>
+      <ul>
+      </ul>
+    </div>
+  </div>
+
+    <script>
+      if (typeof web3 !== 'undefined') {
+           web3 = new Web3(web3.currentProvider);
+       } else {
+           // set the provider you want from Web3.providers
+           web3 = new Web3(new Web3.providers.HttpProvider("http://localhost:8545"));
+       }
+
+      web3.eth.defaultAccount = web3.eth.accounts[0];
+
+      var LotteryContract = web3.eth.contract([
+	{
+		"constant": true,
+		"inputs": [
+			{
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"name": "participates",
+		"outputs": [
+			{
+				"name": "userAddress",
+				"type": "address"
+			},
+			{
+				"name": "balance",
+				"type": "uint256"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [
+			{
+				"name": "num",
+				"type": "uint8"
+			}
+		],
+		"name": "getAddr",
+		"outputs": [
+			{
+				"name": "",
+				"type": "address"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [],
+		"name": "getWinners",
+		"outputs": [
+			{
+				"name": "",
+				"type": "address[]"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [],
+		"name": "getBuyedTickets",
+		"outputs": [
+			{
+				"name": "",
+				"type": "uint8[]"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [],
+		"name": "winningTicketNumber",
+		"outputs": [
+			{
+				"name": "",
+				"type": "uint8"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [],
+		"name": "getContractValue",
+		"outputs": [
+			{
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"payable": false,
+		"stateMutability": "nonpayable",
+		"type": "constructor"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": false,
+				"name": "_ticketNumber",
+				"type": "uint8"
+			},
+			{
+				"indexed": false,
+				"name": "_soldTicketsAmount",
+				"type": "uint8"
+			}
+		],
+		"name": "TicketInfo",
+		"type": "event"
+	},
+	{
+		"constant": false,
+		"inputs": [
+			{
+				"name": "amount",
+				"type": "uint256"
+			}
+		],
+		"name": "withdraw",
+		"outputs": [
+			{
+				"name": "",
+				"type": "bool"
+			}
+		],
+		"payable": false,
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": false,
+				"name": "_winner",
+				"type": "address"
+			}
+		],
+		"name": "Winner",
+		"type": "event"
+	},
+	{
+		"constant": false,
+		"inputs": [
+			{
+				"name": "ticketNumber",
+				"type": "uint8"
+			}
+		],
+		"name": "participateLottery",
+		"outputs": [
+			{
+				"name": "",
+				"type": "bool"
+			}
+		],
+		"payable": true,
+		"stateMutability": "payable",
+		"type": "function"
+	},
+	{
+		"payable": true,
+		"stateMutability": "payable",
+		"type": "fallback"
+	}
+]);
+
+      var Lottery = LotteryContract.at('0xd3f51a6160e3582aceaf61f06cb33a030f569a26');
+
+      element = document.getElementById("congrat");
+      var ticketNumber;
+      var walletNumber;
+      var ticketEvent = Lottery.TicketInfo();
+      var winnerEvent = Lottery.Winner();
+
+      ticketEvent.watch(function(error, result){
+        if(result){
+          console.log(result);
+          $("#ticket" + result.args._ticketNumber.c[0].toString()).removeClass('ticket').addClass('ticketIsBuyed');
+          $("#num").text(result.args._soldTicketsAmount.c[0].toString());
+         }
+      });
+
+      winnerEvent.watch(function(error, result){
+        if(result){
+          console.log(result);
+            $("#num").text("0");
+            for(var i =1; i<6;i++){
+              $("#ticket" + i.toString()).removeClass('ticketIsBuyed').addClass('ticket');
+            }
+            $("#winners ul").append('<li>' + result.args._winner.toString() + '</li>');
+            $("#congrat").text("Congratulation "+ result.args._winner.toString());
+            element.classList.remove("congrat");
+            void element.offsetWidth;
+            element.classList.add("congrat");
+         }
+      });
+
+      Lottery.getBuyedTickets((err,res)=>{
+        if(res){
+          console.log(res);
+          if(res.length != 0) {
+            for(var i =0; i<res.length;i++){
+              $("#ticket" + res[i].c[0].toString()).removeClass('ticket').addClass('ticketIsBuyed');
+            }
+            $("#num").text(res.length);
+          }
+          else {
+            for(var i =1; i<6;i++){
+              $("#ticket" + i).removeClass('ticketIsBuyed').addClass('ticket');
+            }
+            $("#num").text(res.length);
+          }
+        }
+      });
+
+      Lottery.getWinners((err, res) => {
+        if(res){
+          for(var i =0; i<res.length;i++){
+            $("#winners ul").append('<li>' + res[i].toString() + '</li>');
+          }
+        }});
+
+      $(".ticket").click(function(){
+        ticketNumber = $(this).attr("tabindex");
+      });
+
+      $(".wallet").click(function(){
+        walletNumber = $(this).attr("value");
+        web3.eth.defaultAccount = web3.eth.accounts[walletNumber];
+      });
+
+        $("#buy").click(function() {
+            Lottery.participateLottery(ticketNumber, {value: web3.toWei(1, "ether"), gas: 4712388}, (err, res) => {
+              if(!err){
+                console.log(res);
+              }
+              else {
+                console.log(err);
+              }
+            });
+        });
+    </script>
+</body>
+</html>
